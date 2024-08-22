@@ -15,16 +15,17 @@ import (
 
 const PORT = ":42069"
 
-func defaultHandlerFunc(w http.ResponseWriter, _ *http.Request) {
+func executeTemplate(w http.ResponseWriter, tplPath string, data interface{}) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tplPath := filepath.Join("templates", "home.gohtml")
+
 	tpl, err := template.ParseFiles(tplPath)
 	if err != nil {
 		log.Printf("Parsing template: %v", err)
 		http.Error(w, "There was an error parsing the template", http.StatusInternalServerError)
 		return
 	}
-	err = tpl.Execute(w, struct{ Hi string }{Hi: "Hey"})
+
+	err = tpl.Execute(w, data)
 	if err != nil {
 		log.Printf("Executing template: %v", err)
 		http.Error(w, "There was an error executing the template", http.StatusInternalServerError)
@@ -32,20 +33,45 @@ func defaultHandlerFunc(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+func defaultHandlerFunc(w http.ResponseWriter, _ *http.Request) {
+	tplPath := filepath.Join("templates", "home.gohtml")
+	executeTemplate(w, tplPath, nil)
+}
+
+func contactHandlerFunc(w http.ResponseWriter, _ *http.Request) {
+	tplPath := filepath.Join("templates", "contact.gohtml")
+	executeTemplate(w, tplPath, nil)
+}
+
 func faqHandlerFunc(w http.ResponseWriter, r *http.Request) {
+	tplPath := filepath.Join("templates", "faq.gohtml")
 	contents, err := os.ReadFile("faq.txt")
+
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Something terrible occured!", http.StatusInternalServerError)
-	} else {
-		rawFaq := string(contents)
-		var faqHtml string
-		for _, line := range strings.Split(rawFaq, "\n") {
-			faqHtml += "<p>" + line + "</p>"
-		}
-		w.Header().Set("Content-Type", "text/html;charset=utf-8")
-		fmt.Fprint(w, faqHtml)
+		return
 	}
+
+	rawFaq := strings.Split(string(contents), "\n")
+
+	type Question struct {
+		Q string
+		A string
+	}
+	type Questions []Question
+
+	var questions Questions
+
+	for idx := 0; idx <= len(rawFaq)-2; {
+		question := Question{
+			Q: rawFaq[idx],
+			A: rawFaq[idx+1],
+		}
+		questions = append(questions, question)
+		idx += 2
+	}
+	executeTemplate(w, tplPath, questions)
 }
 
 func urlParamHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +98,7 @@ func main() {
 
 	r.Get("/jimdel/{rank}", urlParamHandler)
 	r.Get("/faq", faqHandlerFunc)
+	r.Get("/contact", contactHandlerFunc)
 	r.Get("/", defaultHandlerFunc)
 
 	err := http.ListenAndServe(PORT, r)

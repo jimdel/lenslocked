@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>FAQ</title>
 </head>
 <body>
     <main>
-        <p>Hello, James!</p>
+        <ul>
+            {{range .}}
+            <li><strong>{{.Q}}</strong></li>
+            <li>{{.A}}</li>
+            {{end}}
+        </ul>
     </main>
 </body>
 </html>
