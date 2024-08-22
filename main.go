@@ -31,7 +31,11 @@ func faqHandlerFunc(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html;charset=utf-8")
 		fmt.Fprint(w, faqHtml)
 	}
+}
 
+func urlParamHandler(w http.ResponseWriter, r *http.Request) {
+	param := chi.URLParam(r, "rank")
+	fmt.Fprint(w, "<h1>"+param+"</h1>")
 }
 
 func main() {
@@ -45,6 +49,13 @@ func main() {
 		http.Error(w, "404 - Not Found!", http.StatusNotFound)
 	})
 
+	// Apply middleware to single route
+	// r.Route("/faq", func(r chi.Router) {
+	// 	r.Use(middleware.Logger)
+	// 	r.Get("/faq", faqHandlerFunc)
+	// })
+
+	r.Get("/jimdel/{rank}", urlParamHandler)
 	r.Get("/faq", faqHandlerFunc)
 	r.Get("/", defaultHandlerFunc)
 
