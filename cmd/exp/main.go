@@ -1,27 +1,31 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
-	"os"
 )
 
-type User struct {
-	Name  string
-	Email string
+func main() {
+	err := CreateOrg()
+	fmt.Println(err)
 }
 
-func main() {
-	fmt.Println("Experimental main")
-	user := User{Name: "James DeLay", Email: "jimdel@github.com"}
+func Connect() error {
+	return errors.New("ERR CONNECTION FAILED")
+}
 
-	t, err := template.ParseFiles("hello.gohtml")
+func CreateUser() error {
+	err := Connect()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("ERR CREATE USER -> %w", err)
 	}
-	err = t.Execute(os.Stdout, user)
-	if err != nil {
-		panic(err)
-	}
+	return nil
+}
 
+func CreateOrg() error {
+	err := CreateUser()
+	if err != nil {
+		return fmt.Errorf("ERR CREATE ORG -> %w", err)
+	}
+	return nil
 }
