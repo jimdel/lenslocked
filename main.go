@@ -25,27 +25,12 @@ func main() {
 	})
 
 	// Home
-	tpl, err := views.Parse("home.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	r.Get("/", controllers.StaticHandler(tpl))
 
-	// Contact
-	tpl, err = views.Parse("contact.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	r.Get("/contact", controllers.StaticHandler(tpl))
+	r.Get("/", controllers.StaticHandler(views.Must(views.Parse("home.gohtml"))))
+	r.Get("/contact", controllers.StaticHandler(views.Must(views.Parse("contact.gohtml"))))
+	r.Get("/faq", controllers.FAQStaticHandler(views.Must(views.Parse("faq.gohtml"))))
 
-	// FAQ
-	tpl, err = views.Parse("faq.gohtml")
-	if err != nil {
-		panic(err)
-	}
-	r.Get("/faq", controllers.FAQStaticHandler(tpl))
-
-	err = http.ListenAndServe(PORT, r)
+	err := http.ListenAndServe(PORT, r)
 	if err != nil {
 		fmt.Printf("<< SERVER ERROR >>")
 		panic(err)

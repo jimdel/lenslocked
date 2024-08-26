@@ -33,3 +33,10 @@ func Parse(templateName string) (Template, error) {
 	tmpl := Template{tpl}
 	return tmpl, nil
 }
+
+func Must(t Template, err error) Template {
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
