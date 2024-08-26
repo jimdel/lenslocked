@@ -5,27 +5,23 @@ import (
 	"fmt"
 )
 
+var ErrorNotFound = errors.New("ERR NOT FOUND")
+
 func main() {
-	err := CreateOrg()
-	fmt.Println(err)
-}
-
-func Connect() error {
-	return errors.New("ERR CONNECTION FAILED")
-}
-
-func CreateUser() error {
-	err := Connect()
-	if err != nil {
-		return fmt.Errorf("ERR CREATE USER -> %w", err)
+	err := B()
+	if errors.Is(err, ErrorNotFound) {
+		fmt.Println("WE GOT THE ERROR CAPTAIN!")
 	}
-	return nil
 }
 
-func CreateOrg() error {
-	err := CreateUser()
+func A() error {
+	return ErrorNotFound
+}
+
+func B() error {
+	err := A()
 	if err != nil {
-		return fmt.Errorf("ERR CREATE ORG -> %w", err)
+		return fmt.Errorf("ERR IN FUNC B: %w", err)
 	}
 	return nil
 }

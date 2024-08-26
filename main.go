@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jimdel/lenslocked/controllers"
+	"github.com/jimdel/lenslocked/templates"
 	"github.com/jimdel/lenslocked/views"
 )
 
@@ -26,9 +27,10 @@ func main() {
 
 	// Home
 
-	r.Get("/", controllers.StaticHandler(views.Must(views.Parse("home.gohtml"))))
-	r.Get("/contact", controllers.StaticHandler(views.Must(views.Parse("contact.gohtml"))))
-	r.Get("/faq", controllers.FAQStaticHandler(views.Must(views.Parse("faq.gohtml"))))
+	r.Get("/", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "home.gohtml"))))
+	r.Get("/contact", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "contact.gohtml"))))
+	r.Get("/faq", controllers.FAQStaticHandler(views.Must(views.ParseFS(templates.FS, "faq.gohtml"))))
+	r.Get("/static", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "static.gohtml"))))
 
 	err := http.ListenAndServe(PORT, r)
 	if err != nil {

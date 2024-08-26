@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"io/fs"
 	"net/http"
-	"os"
 	"strings"
 
+	"github.com/jimdel/lenslocked/data"
 	"github.com/jimdel/lenslocked/views"
 )
 
@@ -17,7 +18,7 @@ func StaticHandler(tpl views.Template) http.HandlerFunc {
 
 func FAQStaticHandler(tpl views.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		contents, err := os.ReadFile("faq.txt")
+		contents, err := fs.ReadFile(data.FS, "faq.txt")
 
 		if err != nil {
 			fmt.Println(err)
