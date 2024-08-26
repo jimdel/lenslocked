@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People</title>
+</head>
+<body>
+    <main>
+        {{range .People }}
+            <p><strong>Hello, {{.Name}}</strong></p>
+            <p>Email: {{.Contact.Email}}</p>
+            {{if .Contact.ShowAddress}}
+            <p>Address: {{.Contact.Address}}</p>
+            {{else}}
+            <p>No address on file...</p>
+            {{end}}
+        {{end}}
+        <hr>
+        {{range .Aliens}}
+            <p>{{ . }}</p>
+        {{end}}
+
+    </main>
+</body>
+</html>

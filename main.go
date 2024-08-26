@@ -79,6 +79,48 @@ func urlParamHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<h1>"+param+"</h1>")
 }
 
+func peopleHandlerFunc(w http.ResponseWriter, r *http.Request) {
+	type ContactInfo struct {
+		Email       string
+		Address     string
+		ShowAddress bool
+	}
+	type Person struct {
+		Name    string
+		Contact ContactInfo
+	}
+	var people []Person = []Person{
+		{
+			Name: "james",
+			Contact: ContactInfo{
+				Email:       "jimdel@github.com",
+				Address:     "300 Herb Street, L.I.N.Y",
+				ShowAddress: false,
+			},
+		},
+		{
+			Name: "tim",
+			Contact: ContactInfo{
+				Email:       "timdel@github.com",
+				Address:     "301 Herb Street, L.I.N.Y",
+				ShowAddress: true,
+			},
+		},
+	}
+	var aliens map[string]string = map[string]string{
+		"1": "Romulus",
+		"2": "Remulus",
+		"3": "Reemulus",
+		"4": "Carl",
+	}
+
+	tplPath := filepath.Join("templates", "people.gohtml")
+	executeTemplate(w, tplPath, struct {
+		People []Person
+		Aliens map[string]string
+	}{People: people, Aliens: aliens})
+}
+
 func main() {
 
 	fmt.Printf("Server listening on port %v\n", PORT)
@@ -99,6 +141,7 @@ func main() {
 	r.Get("/jimdel/{rank}", urlParamHandler)
 	r.Get("/faq", faqHandlerFunc)
 	r.Get("/contact", contactHandlerFunc)
+	r.Get("/people", peopleHandlerFunc)
 	r.Get("/", defaultHandlerFunc)
 
 	err := http.ListenAndServe(PORT, r)
