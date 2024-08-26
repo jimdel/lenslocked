@@ -8,11 +8,15 @@
 <body>
     <main>
         <ul>
-            {{range .}}
-            <li><strong>{{.Q}}</strong></li>
-            <li>{{.A}}</li>
-            {{end}}
+            {{ range . }}
+            {{ template "qa" . }}
+            {{ end }}
         </ul>
     </main>
 </body>
 </html>
+
+{{define "qa"}}
+<li><strong>{{.Q}}</strong></li>
+<li>{{.A}}</li>
+{{end}}
