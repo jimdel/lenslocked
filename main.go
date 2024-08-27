@@ -27,10 +27,18 @@ func main() {
 
 	// Home
 
-	r.Get("/", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "home.gohtml"))))
-	r.Get("/contact", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "contact.gohtml"))))
-	r.Get("/faq", controllers.FAQStaticHandler(views.Must(views.ParseFS(templates.FS, "faq.gohtml"))))
-	r.Get("/static", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "static.gohtml"))))
+	r.Get("/", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "home.gohtml")), "Home"))
+	r.Get("/contact", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "contact.gohtml")), "Contact"))
+	r.Get("/faq", controllers.FAQStaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "faq.gohtml")), "FAQ"))
+	r.Get("/static", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "static.gohtml")), "Static"))
+
+	// Converting to controller
+	userController := controllers.User{}
+	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signup.gohtml"))
+
+	r.Get("/signup", userController.New)
+	r.Post("/users", userController.Create)
+	// r.Get("/signup", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signup.gohtml")), "Sign Up"))
 
 	err := http.ListenAndServe(PORT, r)
 	if err != nil {
