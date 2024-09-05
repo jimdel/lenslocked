@@ -24,7 +24,7 @@ func (c DBConf) generateDbConnStr() string {
 func main() {
 	var conf = DBConf{
 		Host:     "localhost",
-		Port:     "5432",
+		Port:     "8081",
 		User:     "baloo",
 		Password: "junglebook",
 		DBName:   "lenslocked",
@@ -42,4 +42,35 @@ func main() {
 	fmt.Println("CONNECTED SUCCESSFULLY")
 	defer db.Close()
 
+	_, err = db.Exec(`
+	CREATE TABLE IF NOT EXISTS users (
+		id SERIAL PRIMARY KEY,
+		name TEXT,
+		email TEXT UNIQUE,
+		createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+	);
+
+	CREATE TABLE IF NOT EXISTS orders (
+		id SERIAL PRIMARY KEY,
+		user_id INT,
+		amount INT,
+		description TEXT,
+		createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+	`)
+
+	row := db.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id, name;", "Jim Del", "jimdel@github.com")
+	var user struct {
+		id   int
+		name string
+	}
+
+	err = row.Scan(&user)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%d", user)
 }
