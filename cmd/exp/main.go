@@ -1,27 +1,45 @@
 package main
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
+
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-var ErrorNotFound = errors.New("ERR NOT FOUND")
+type DBConf struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
+}
+
+func (c DBConf) generateDbConnStr() string {
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode)
+}
 
 func main() {
-	err := B()
-	if errors.Is(err, ErrorNotFound) {
-		fmt.Println("WE GOT THE ERROR CAPTAIN!")
+	var conf = DBConf{
+		Host:     "localhost",
+		Port:     "5432",
+		User:     "baloo",
+		Password: "junglebook",
+		DBName:   "lenslocked",
+		SSLMode:  "disable",
 	}
-}
 
-func A() error {
-	return ErrorNotFound
-}
-
-func B() error {
-	err := A()
+	db, err := sql.Open("pgx", conf.generateDbConnStr())
 	if err != nil {
-		return fmt.Errorf("ERR IN FUNC B: %w", err)
+		panic(err)
 	}
-	return nil
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("CONNECTED SUCCESSFULLY")
+	defer db.Close()
+
 }
