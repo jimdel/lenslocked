@@ -60,8 +60,9 @@ func main() {
 		updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	`)
-
-	row := db.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id, name;", "Jim Del", "jimdel@github.com")
+	username := "Jim Del"
+	email := "jimdel@github.com"
+	row := db.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id, name;", username, email)
 	var user struct {
 		id   int
 		name string
