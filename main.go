@@ -38,7 +38,6 @@ func main() {
 
 	r.Get("/signup", userController.New)
 	r.Post("/users", userController.Create)
-	// r.Get("/signup", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signup.gohtml")), "Sign Up"))
 
 	err := http.ListenAndServe(PORT, r)
 	if err != nil {

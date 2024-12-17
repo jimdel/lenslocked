@@ -8,8 +8,6 @@
         >Email Address</label
       >
       <input
-        value="{{.Email}}"
-        {{if not.Email}}autofocus{{end}}
         class="border-2 mt-2 p-2"
         name="email"
         id="email"
@@ -21,7 +19,6 @@
     <div class="flex flex-col">
       <label for="password" class="mt-2 font-semibold text-lg">Password</label>
       <input
-        {{if .Email}}autofocus{{end}}
         class="border-2 mt-2 p-2"
         id="password"
         type="password"
