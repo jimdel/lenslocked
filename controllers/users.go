@@ -21,7 +21,7 @@ func (u User) New(w http.ResponseWriter, r *http.Request) {
 
 func (u User) Create(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Fprint(w, "Creating user...", r.FormValue("email"), r.FormValue("password"))
+	fmt.Fprint(w, "Creating user..")
 	fmt.Fprint(w, r.FormValue("email"))
 	fmt.Fprint(w, r.FormValue("password"))
 }
