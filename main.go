@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jimdel/lenslocked/controllers"
+	"github.com/jimdel/lenslocked/models"
 	"github.com/jimdel/lenslocked/templates"
 	"github.com/jimdel/lenslocked/views"
 )
@@ -17,6 +18,15 @@ func main() {
 
 	fmt.Printf("Server listening on port %v\n", PORT)
 
+	// Setup DB connection
+	config := models.DefaultPostgresConfig()
+	db, err := models.Open(config)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	// END
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -25,21 +35,29 @@ func main() {
 		http.Error(w, "404 - Not Found!", http.StatusNotFound)
 	})
 
-	// Home
-
+	// Routes
 	r.Get("/", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "home.gohtml")), "Home"))
 	r.Get("/contact", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "contact.gohtml")), "Contact"))
 	r.Get("/faq", controllers.FAQStaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "faq.gohtml")), "FAQ"))
 	r.Get("/static", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "static.gohtml")), "Static"))
 
 	// Converting to controller
-	userController := controllers.User{}
+
+	userController := controllers.Users{
+		UserService: &models.UserService{
+			DB: db,
+		},
+	}
+
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signup.gohtml"))
+	userController.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signin.gohtml"))
 
 	r.Get("/signup", userController.New)
 	r.Post("/users", userController.Create)
+	r.Get("/signin", userController.SignIn)
+	r.Post("/signin", userController.ProcessSignIn)
 
-	err := http.ListenAndServe(PORT, r)
+	err = http.ListenAndServe(PORT, r)
 	if err != nil {
 		fmt.Printf("<< SERVER ERROR >>")
 		panic(err)
