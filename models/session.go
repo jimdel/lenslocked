@@ -31,7 +31,7 @@ type TokenManager struct {
 	BytesPerToken int
 }
 
-func (tm *TokenManager) New() (token, tokenHash string, err error) {
+func (tm *TokenManager) new() (token, tokenHash string, err error) {
 	bytesPerToken := tm.BytesPerToken
 
 	if bytesPerToken < MinBytesPerToken {
@@ -53,7 +53,7 @@ func (tm *TokenManager) hash(token string) string {
 
 func (ss *SessionService) Create(userID int) (*Session, error) {
 	tm := TokenManager{}
-	token, tokenHash, err := tm.New()
+	token, tokenHash, err := tm.new()
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
