@@ -28,6 +28,15 @@ func main() {
 	defer db.Close()
 	// END
 
+	// Instantiate db svcs
+	userSvc := &models.UserService{
+		DB: db,
+	}
+	sessionSvc := &models.SessionService{
+		DB: db,
+	}
+	//END - Instantiate db svcs
+
 	// Setup Router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -46,9 +55,8 @@ func main() {
 
 	// Routes-UserControler
 	userController := controllers.Users{
-		UserService: &models.UserService{
-			DB: db,
-		},
+		UserService:    userSvc,
+		SessionService: sessionSvc,
 	}
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signup.gohtml"))
 	userController.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signin.gohtml"))

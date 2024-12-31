@@ -33,12 +33,6 @@ docker ps
 docker compose exec -it db psql -U baloo -d lenslocked
 ```
 
-## Misc.
-
-### Ideas
-
-- Create a table for users with 1M rows, get them all, and render on UI using HTMX, server side pagination in Go. Compare speeds with a Flask server doing the same
-
 ## Cookies, CSRF, & Sessions
 
 - Cookies are stored in the browser and are sent with every request to the server
@@ -47,3 +41,8 @@ docker compose exec -it db psql -U baloo -d lenslocked
     - Use signing or obfuscation(session tokens/tables) to prevent tampering
 - CSRF tokens are used to prevent CSRF attacks
   - gorilla/csrf is a package that can be used to generate CSRF tokens
+
+## Ideas
+
+- Create a table for users with 1M rows, get them all, and render on UI using HTMX, server side pagination in Go. Compare speeds with a Flask server doing the same
+- Add DDoS protection to the app (rate limiting for IP addresses, blacklist, etc)
