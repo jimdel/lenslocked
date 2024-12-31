@@ -24,6 +24,12 @@ func SetCookie(w http.ResponseWriter, name, value string) {
 	http.SetCookie(w, cookie)
 }
 
+func DeleteCookie(w http.ResponseWriter, name string) {
+	cookie := NewCookie(name, "")
+	cookie.MaxAge = -1
+	http.SetCookie(w, cookie)
+}
+
 func ReadCookie(r *http.Request, name string) (string, error) {
 	c, err := r.Cookie(name)
 	if err != nil {
