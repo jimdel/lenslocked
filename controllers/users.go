@@ -19,8 +19,9 @@ func (u Users) New(w http.ResponseWriter, r *http.Request) {
 	var data struct {
 		Email string
 	}
+
 	data.Email = r.FormValue("email")
-	u.Templates.New.Execute(w, data)
+	u.Templates.New.Execute(w, r, data)
 }
 
 func (u Users) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +31,7 @@ func (u Users) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Email = r.FormValue("email")
-	u.Templates.SignIn.Execute(w, data)
+	u.Templates.SignIn.Execute(w, r, data)
 }
 
 func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
@@ -41,10 +42,34 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 	user, err := u.UserService.Authenticate(unauthenticatedUser)
 	if err != nil {
 		http.Error(w, "Sign in failed...", http.StatusInternalServerError)
-	} else {
-		fmt.Fprintf(w, "User authenticated: %v+", user)
 	}
-	// u.Templates.SignIn.Execute(w, &user)
+
+	cookie := http.Cookie{
+		Name:     "email",
+		Value:    user.Email,
+		Path:     "/",
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
+
+	fmt.Fprint(w, "User logged in!")
+}
+
+func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("email")
+
+	if err != nil {
+		if err == http.ErrNoCookie {
+			http.Redirect(w, r, "/signup", http.StatusPermanentRedirect)
+		}
+		fmt.Fprint(w, "Unable to parse email cookie")
+	}
+
+	email := cookie.Value
+
+	fmt.Fprint(w, email)
+	fmt.Fprintf(w, "%v+", r.Header)
+
 }
 
 func (u Users) Create(w http.ResponseWriter, r *http.Request) {

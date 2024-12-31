@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gorilla/csrf"
 	"github.com/jimdel/lenslocked/controllers"
 	"github.com/jimdel/lenslocked/models"
 	"github.com/jimdel/lenslocked/templates"
@@ -27,6 +28,7 @@ func main() {
 	defer db.Close()
 	// END
 
+	// Setup Router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -34,6 +36,7 @@ func main() {
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "404 - Not Found!", http.StatusNotFound)
 	})
+	//END - Setup Router
 
 	// Routes
 	r.Get("/", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "home.gohtml")), "Home"))
@@ -41,23 +44,30 @@ func main() {
 	r.Get("/faq", controllers.FAQStaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "faq.gohtml")), "FAQ"))
 	r.Get("/static", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "static.gohtml")), "Static"))
 
-	// Converting to controller
-
+	// Routes-UserControler
 	userController := controllers.Users{
 		UserService: &models.UserService{
 			DB: db,
 		},
 	}
-
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signup.gohtml"))
 	userController.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signin.gohtml"))
-
 	r.Get("/signup", userController.New)
 	r.Post("/users", userController.Create)
 	r.Get("/signin", userController.SignIn)
 	r.Post("/signin", userController.ProcessSignIn)
+	r.Get("/users/me", controllers.Performance(userController.CurrentUser))
+	//END - Routes-UserController
 
-	err = http.ListenAndServe(PORT, r)
+	//END - Routes
+
+	// Cross Site Request Forgery Prevention
+	csrfAuthKey := "abze12fjabze12fjabze12fjabze12fj"
+	// TODO: fix Secure before deployment
+	csrfMiddleware := csrf.Protect([]byte(csrfAuthKey), csrf.Secure(false))
+	// END - Cross Site Request Forgery Prevention
+
+	err = http.ListenAndServe(PORT, csrfMiddleware(r))
 	if err != nil {
 		fmt.Printf("<< SERVER ERROR >>")
 		panic(err)

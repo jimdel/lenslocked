@@ -5,6 +5,9 @@
   <h1>Sign In</h1>
   <form action="/signin" method="post" class="w-full">
     <div class="flex flex-col">
+      <div class="hidden">
+        {{ CSRF }}
+      </div>
       <label for="email" class="mt-2 font-semibold text-lg"
         >Email Address</label
       >

@@ -38,7 +38,8 @@ func Open(config PostgresConf) (*sql.DB, error) {
 	db, err := sql.Open("pgx", config.generateDbConnStr())
 	if err != nil {
 		panic(err)
+	} else {
+		fmt.Println("CONNECTED SUCCESSFULLY")
+		return db, err
 	}
-	fmt.Println("CONNECTED SUCCESSFULLY")
-	return db, err
 }

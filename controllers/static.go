@@ -16,7 +16,7 @@ type PageMeta struct {
 func StaticHandler(tpl Template, title string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		pm := PageMeta{title}
-		tpl.Execute(w, pm)
+		tpl.Execute(w, r, pm)
 	}
 }
 
@@ -47,7 +47,7 @@ func FAQStaticHandler(tpl Template, title string) http.HandlerFunc {
 			http.Error(w, "Something terrible occured!", http.StatusInternalServerError)
 			return
 		}
-		tpl.Execute(w, struct {
+		tpl.Execute(w, r, struct {
 			Questions Questions
 			Title     string
 		}{questions, title})
