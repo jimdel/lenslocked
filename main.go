@@ -72,7 +72,7 @@ func main() {
 	// Cross Site Request Forgery Prevention
 	csrfAuthKey := "abze12fjabze12fjabze12fjabze12fj"
 	// TODO: fix Secure before deployment
-	csrfMiddleware := csrf.Protect([]byte(csrfAuthKey), csrf.Secure(false))
+	csrfMiddleware := csrf.Protect([]byte(csrfAuthKey), csrf.Path("/"), csrf.Secure(false))
 	// END - Cross Site Request Forgery Prevention
 
 	err = http.ListenAndServe(PORT, csrfMiddleware(r))
