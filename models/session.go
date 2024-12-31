@@ -25,24 +25,35 @@ type Session struct {
 
 type SessionService struct {
 	DB *sql.DB
-	// Min # of bytes for session token, if not set default to MinBytesPerToken
+}
+
+type TokenManager struct {
 	BytesPerToken int
 }
 
-// type TokenManager struct {
-
-// }
-
-// func
-
-func (ss *SessionService) Create(userID int) (*Session, error) {
-	bytesPerToken := ss.BytesPerToken
+func (tm *TokenManager) New() (token, tokenHash string, err error) {
+	bytesPerToken := tm.BytesPerToken
 
 	if bytesPerToken < MinBytesPerToken {
 		bytesPerToken = MinBytesPerToken
 	}
 
-	token, err := rand.String(bytesPerToken)
+	token, err = rand.String(bytesPerToken)
+	if err != nil {
+		return "", "", fmt.Errorf("create: %w", err)
+	}
+	tokenHash = tm.hash(token)
+	return token, tokenHash, nil
+}
+
+func (tm *TokenManager) hash(token string) string {
+	tokenHash := sha256.Sum256([]byte(token))
+	return base64.URLEncoding.EncodeToString(tokenHash[:])
+}
+
+func (ss *SessionService) Create(userID int) (*Session, error) {
+	tm := TokenManager{}
+	token, tokenHash, err := tm.New()
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
@@ -50,7 +61,7 @@ func (ss *SessionService) Create(userID int) (*Session, error) {
 	session := Session{
 		UserID:    userID,
 		Token:     token,
-		TokenHash: ss.hash(token),
+		TokenHash: tokenHash,
 	}
 
 	// 1. Try to update session
@@ -73,7 +84,8 @@ func (ss *SessionService) User(token string) (*User, error) {
 	var user User
 
 	// 1. Hash the session token
-	tokenHash := ss.hash(token)
+	tm := TokenManager{}
+	tokenHash := tm.hash(token)
 
 	// 2. Query for the session with the token hash
 	row := ss.DB.QueryRow(`SELECT user_id FROM sessions WHERE token_hash=$1;`, tokenHash)
@@ -91,15 +103,11 @@ func (ss *SessionService) User(token string) (*User, error) {
 }
 
 func (ss *SessionService) Delete(token string) error {
-	tokenHash := ss.hash(token)
+	tm := TokenManager{}
+	tokenHash := tm.hash(token)
 	_, err := ss.DB.Exec(`DELETE FROM sessions WHERE token_hash=$1;`, tokenHash)
 	if err != nil {
 		return fmt.Errorf("delete: %w", err)
 	}
 	return nil
-}
-
-func (ss *SessionService) hash(token string) string {
-	tokenHash := sha256.Sum256([]byte(token))
-	return base64.URLEncoding.EncodeToString(tokenHash[:])
 }
