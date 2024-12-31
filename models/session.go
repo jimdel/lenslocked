@@ -29,6 +29,12 @@ type SessionService struct {
 	BytesPerToken int
 }
 
+// type TokenManager struct {
+
+// }
+
+// func
+
 func (ss *SessionService) Create(userID int) (*Session, error) {
 	bytesPerToken := ss.BytesPerToken
 

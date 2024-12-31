@@ -32,6 +32,17 @@
     >
   </nav>
   <div class="flex ml-auto">
+    <form action="/signout" method="post" class="inline pr-2">
+      <div class="hidden">
+        {{ CSRF }}
+      </div>
+      <button
+        class="mr-2 flex w-fit justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        type="submit"
+      >
+        Log out
+      </button>
+    </form>
     <a
       href="/signin"
       class="mr-2 flex w-fit justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

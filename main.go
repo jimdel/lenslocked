@@ -60,6 +60,7 @@ func main() {
 	}
 	userController.Templates.New = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signup.gohtml"))
 	userController.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signin.gohtml"))
+	userController.Templates.CurrentUser = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "current-user.gohtml"))
 
 	r.Get("/signup", userController.New)
 	r.Post("/users", userController.Create)
