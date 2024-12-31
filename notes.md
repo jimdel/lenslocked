@@ -46,3 +46,5 @@ docker compose exec -it db psql -U baloo -d lenslocked
 
 - Create a table for users with 1M rows, get them all, and render on UI using HTMX, server side pagination in Go. Compare speeds with a Flask server doing the same
 - Add DDoS protection to the app (rate limiting for IP addresses, blacklist, etc)
+- Research SQL indexes
+  - Rule: wait to see if an index is needed before adding it (if slow queries are detected)
