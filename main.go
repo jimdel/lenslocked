@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/jimdel/lenslocked/controllers"
+	"github.com/jimdel/lenslocked/migrations"
 	"github.com/jimdel/lenslocked/models"
 	"github.com/jimdel/lenslocked/templates"
 	"github.com/jimdel/lenslocked/views"
@@ -26,6 +27,12 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	err = models.MigrateFS(db, migrations.FS, ".")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("DB CONNECTED SUCCESSFULLY")
 	// END
 
 	// Instantiate db svcs
