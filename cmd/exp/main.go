@@ -1,22 +1,26 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"strings"
+)
 
-	_ "github.com/jackc/pgx/v4/stdlib"
-	"github.com/jimdel/lenslocked/models"
+type ctxKey string
+
+const (
+	colorKey ctxKey = "color"
 )
 
 func main() {
-	config := models.DefaultPostgresConfig()
-	db, err := models.Open(config)
-	if err != nil {
-		panic(err)
-	}
 
-	err = db.Ping()
-	if err != nil {
-		fmt.Printf("Error pinging db: %v\n", err)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, colorKey, "blue")
+
+	value := ctx.Value(colorKey)
+	str, ok := value.(string)
+	if !ok {
+		panic("BAD TYPE CONV")
 	}
-	defer db.Close()
+	fmt.Println(strings.HasPrefix(str, "b"))
 }

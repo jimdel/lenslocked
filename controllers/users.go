@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jimdel/lenslocked/context"
 	"github.com/jimdel/lenslocked/models"
 )
 
@@ -79,21 +80,7 @@ func (u Users) ProcessSignOut(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
-	token, err := ReadCookie(r, CookieSession)
-	if err != nil {
-		fmt.Println(err)
-		// TODO: implement error handling to handle sign in err
-		http.Redirect(w, r, "/signin", http.StatusFound)
-		return
-	}
-
-	user, err := u.SessionService.User(token)
-	if err != nil {
-		fmt.Println(err)
-		// TODO: implement error handling to handle sign in err (INVALID TOKEN)
-		http.Redirect(w, r, "/signin", http.StatusFound)
-		return
-	}
+	user := context.User(r.Context())
 	u.Templates.CurrentUser.Execute(w, r, user)
 }
 
