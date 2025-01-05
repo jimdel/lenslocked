@@ -15,7 +15,7 @@ type UserMiddleware struct {
 func (um *UserMiddleware) SetUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := controllers.ReadCookie(r, controllers.CookieSession)
-		if err != nil {
+		if err != nil || token == "" {
 			next.ServeHTTP(w, r)
 			return
 		}

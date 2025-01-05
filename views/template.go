@@ -9,6 +9,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/csrf"
+	"github.com/jimdel/lenslocked/context"
+	"github.com/jimdel/lenslocked/models"
 )
 
 type Template struct {
@@ -23,6 +25,9 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 		template.FuncMap{
 			"CSRF": func() (template.HTML, error) {
 				return `<!-- placeholder -->`, fmt.Errorf("CSRF not implemented")
+			},
+			"currentUser": func() (template.HTML, error) {
+				return `<!-- placeholder -->`, fmt.Errorf("currentUser not implemented")
 			},
 		},
 	)
@@ -48,6 +53,9 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		template.FuncMap{
 			"CSRF": func() template.HTML {
 				return csrf.TemplateField(r)
+			},
+			"currentUser": func() *models.User {
+				return context.User(r.Context())
 			},
 		},
 	)
