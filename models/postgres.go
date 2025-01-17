@@ -9,7 +9,7 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-type PostgresConf struct {
+type PostgresConfig struct {
 	Host     string
 	Port     string
 	User     string
@@ -18,8 +18,8 @@ type PostgresConf struct {
 	SSLMode  string
 }
 
-func DefaultPostgresConfig() PostgresConf {
-	var conf = PostgresConf{
+func DefaultPostgresConfigig() PostgresConfig {
+	var conf = PostgresConfig{
 		Host:     "localhost",
 		Port:     "8081",
 		User:     "baloo",
@@ -30,13 +30,13 @@ func DefaultPostgresConfig() PostgresConf {
 	return conf
 }
 
-func (c PostgresConf) generateDbConnStr() string {
+func (c PostgresConfig) generateDbConnStr() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode)
 }
 
 // Open will open a SQL conn - you will have to call defer db.Close() in main where conn is instantiated
-func Open(config PostgresConf) (*sql.DB, error) {
+func Open(config PostgresConfig) (*sql.DB, error) {
 	db, err := sql.Open("pgx", config.generateDbConnStr())
 	if err != nil {
 		panic(err)

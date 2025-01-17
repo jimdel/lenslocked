@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"html/template"
 
 	"github.com/go-mail/mail/v2"
 )
@@ -16,7 +15,7 @@ type Email struct {
 	From      string
 	Subject   string
 	Plaintext string
-	HTML      template.Template
+	HTML      string
 }
 
 type SMTPConfig struct {
@@ -39,12 +38,12 @@ func NewEmailService(config SMTPConfig) (*EmailService, error) {
 	return &es, nil
 }
 
-func (es *EmailService) ForgotPassword(recipient, resetUrl string, tpl template.Template) error {
+func (es *EmailService) ForgotPassword(recipient, resetUrl string) error {
 	email := Email{
 		To:        recipient,
 		Subject:   "Reset Password",
 		Plaintext: "To reset your password please visit the following link " + resetUrl,
-		HTML:      tpl,
+		HTML:      `<p> To reset your password please visit the following link: <a href="` + resetUrl + `">here</a></p>`,
 	}
 
 	err := es.Send(email)

@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/jimdel/lenslocked/context"
 	"github.com/jimdel/lenslocked/models"
@@ -10,12 +11,16 @@ import (
 
 type Users struct {
 	Templates struct {
-		New         Template
-		SignIn      Template
-		CurrentUser Template
+		New            Template
+		SignIn         Template
+		CurrentUser    Template
+		ForgotPassword Template
+		CheckYourEmail Template
 	}
-	UserService    *models.UserService
-	SessionService *models.SessionService
+	UserService          *models.UserService
+	SessionService       *models.SessionService
+	PasswordResetService *models.PasswordResetService
+	EmailService         *models.EmailService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -108,4 +113,40 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 
 	SetCookie(w, CookieSession, session.Token)
 	http.Redirect(w, r, "/users/me", http.StatusFound)
+}
+
+func (u Users) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+	data.Email = r.FormValue("email")
+	u.Templates.ForgotPassword.Execute(w, r, data)
+}
+
+func (u Users) ProcessForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+	data.Email = r.FormValue("email")
+	pwReset, err := u.PasswordResetService.Create(data.Email)
+	if err != nil {
+		// TODO: implement better err handling (ex. no user with email)
+		fmt.Println(err)
+		http.Error(w, "Something went wrong!", http.StatusInternalServerError)
+		return
+	}
+	vals := url.Values{
+		"token": {pwReset.Token},
+	}
+	resetUrl := "https://localhost:42069/reset-pw?" + vals.Encode()
+	err = u.EmailService.ForgotPassword(data.Email, resetUrl)
+	if err != nil {
+		// TODO: implement better err handling (ex. no user with email)
+		fmt.Println(err)
+		http.Error(w, "Something went wrong!", http.StatusInternalServerError)
+		return
+	}
+
+	// Don't render the token - this should be sent via email only for id verification
+	u.Templates.CheckYourEmail.Execute(w, r, data)
 }
