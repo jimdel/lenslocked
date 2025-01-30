@@ -27,15 +27,15 @@ func (us *UserService) Create(nu UnauthenticatedUser) (*User, error) {
 
 	email := strings.ToLower(nu.Email)
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(nu.Password), bcrypt.DefaultCost)
-	hashedPassword := string(hashedBytes)
-	user := User{
-		Email:        email,
-		PasswordHash: hashedPassword,
-	}
 
 	if err != nil {
 		fmt.Printf("An error occured hashing password: %v\n", err)
 		return nil, err
+	}
+	hashedPassword := string(hashedBytes)
+	user := User{
+		Email:        email,
+		PasswordHash: hashedPassword,
 	}
 
 	row := us.DB.QueryRow(`
@@ -74,4 +74,23 @@ func (us *UserService) Authenticate(nu UnauthenticatedUser) (*User, error) {
 		return nil, fmt.Errorf("invalid password: %v", err)
 	}
 	return &user, err
+}
+
+func (us *UserService) UpdatePassword(userID int, pw string) error {
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
+
+	if err != nil {
+		return fmt.Errorf("update password: %w", err)
+	}
+
+	hashedPassword := string(hashedBytes)
+
+	_, err = us.DB.Exec(`
+		UPDATE users SET password_hash = $2 WHERE id = $1
+	`, userID, hashedPassword)
+
+	if err != nil {
+		return fmt.Errorf("update password: %w", err)
+	}
+	return nil
 }

@@ -124,6 +124,8 @@ func main() {
 	userController.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "signin.gohtml"))
 	userController.Templates.CurrentUser = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "current-user.gohtml"))
 	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "forgot-password.gohtml"))
+	userController.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "check-your-email.gohtml"))
+	userController.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "site-layout.gohtml", "reset-password.gohtml"))
 	//END - Controllers
 
 	// Routes
@@ -148,6 +150,9 @@ func main() {
 	r.Get("/forgot-pw", userController.ForgotPassword)
 	r.Post("/forgot-pw", userController.ProcessForgotPassword)
 
+	r.Get("/reset-pw", userController.ResetPassword)
+	r.Post("/reset-pw", userController.ProcessResetPassword)
+
 	r.Route("/users/me", func(r chi.Router) {
 		r.Use(umw.RequireUser)
 		r.Get("/", userController.CurrentUser)
@@ -156,7 +161,6 @@ func main() {
 		})
 	})
 	r.Post("/signout", userController.ProcessSignOut)
-	// r.Get("/users/me", controllers.Performance(userController.CurrentUser))
 
 	// TODO: add nicer 404 page
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

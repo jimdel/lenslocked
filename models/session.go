@@ -31,7 +31,7 @@ type TokenManager struct {
 	BytesPerToken int
 }
 
-func (tm *TokenManager) new() (token, tokenHash string, err error) {
+func (tm *TokenManager) New() (token, tokenHash string, err error) {
 	bytesPerToken := tm.BytesPerToken
 
 	if bytesPerToken < MinBytesPerToken {
@@ -42,18 +42,18 @@ func (tm *TokenManager) new() (token, tokenHash string, err error) {
 	if err != nil {
 		return "", "", fmt.Errorf("create: %w", err)
 	}
-	tokenHash = tm.hash(token)
+	tokenHash = tm.Hash(token)
 	return token, tokenHash, nil
 }
 
-func (tm *TokenManager) hash(token string) string {
+func (tm *TokenManager) Hash(token string) string {
 	tokenHash := sha256.Sum256([]byte(token))
 	return base64.URLEncoding.EncodeToString(tokenHash[:])
 }
 
 func (ss *SessionService) Create(userID int) (*Session, error) {
 	tm := TokenManager{}
-	token, tokenHash, err := tm.new()
+	token, tokenHash, err := tm.New()
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
@@ -84,7 +84,7 @@ func (ss *SessionService) User(token string) (*User, error) {
 
 	// 1. Hash the session token
 	tm := TokenManager{}
-	tokenHash := tm.hash(token)
+	tokenHash := tm.Hash(token)
 
 	// 2. Query for user using the token hash
 	row := ss.DB.QueryRow(`SELECT users.id, users.email, users.password_hash FROM sessions JOIN users ON users.id=sessions.user_id WHERE sessions.token_hash=$1;`, tokenHash)
@@ -96,7 +96,7 @@ func (ss *SessionService) User(token string) (*User, error) {
 
 func (ss *SessionService) Delete(token string) error {
 	tm := TokenManager{}
-	tokenHash := tm.hash(token)
+	tokenHash := tm.Hash(token)
 	_, err := ss.DB.Exec(`DELETE FROM sessions WHERE token_hash=$1;`, tokenHash)
 	if err != nil {
 		return fmt.Errorf("delete: %w", err)

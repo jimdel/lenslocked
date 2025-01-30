@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE passsword_resets (
+CREATE TABLE password_resets (
     id SERIAL PRIMARY KEY,
     user_id INT UNIQUE REFERENCES users (id) ON DELETE CASCADE,
     token_hash TEXT UNIQUE NOT NULL,
@@ -12,5 +12,5 @@ CREATE TABLE passsword_resets (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE passsword_resets;
+DROP TABLE password_resets;
 -- +goose StatementEnd
